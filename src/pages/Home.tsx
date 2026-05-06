@@ -102,12 +102,10 @@ function PendingCard({ onStart }: { onStart: () => void }) {
           <p className="text-stone-400 text-sm">Takes less than a minute.</p>
         </div>
 
-        <div className="relative">
-          <div className="absolute inset-0 rounded-2xl bg-stone-800 animate-pulse-ring opacity-20" />
-          <button onClick={onStart} className="btn-primary relative">
-            Begin today's reflection →
-          </button>
-        </div>
+        <button onClick={onStart} className="btn-primary relative overflow-hidden group">
+          <span className="absolute inset-3 rounded-xl bg-white/10 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 ease-out" />
+          <span className="relative">Begin today's reflection →</span>
+        </button>
       </div>
     </div>
   )

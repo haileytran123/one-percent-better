@@ -101,8 +101,8 @@ export default {
           '50%':      { transform: 'translateY(-5px)' },
         },
         'pulse-ring': {
-          '0%':   { transform: 'scale(1)',    opacity: '0.5' },
-          '100%': { transform: 'scale(1.65)', opacity: '0'   },
+          '0%':   { transform: 'scale(0.98)', opacity: '0.25' },
+          '100%': { transform: 'scale(1.12)', opacity: '0'    },
         },
         'checkmark': {
           '0%':   { opacity: '0', transform: 'scale(0.3) rotate(-8deg)' },
@@ -121,7 +121,7 @@ export default {
         'scale-up':   'scale-up 0.4s cubic-bezier(0.16,1,0.3,1) both',
         'pop':        'pop 0.32s cubic-bezier(0.16,1,0.3,1) both',
         'float':      'float 3.5s ease-in-out infinite',
-        'pulse-ring': 'pulse-ring 1.6s ease-out infinite',
+        'pulse-ring': 'pulse-ring 2s ease-out infinite',
         'checkmark':  'checkmark 0.55s cubic-bezier(0.16,1,0.3,1) 0.1s both',
       },
       boxShadow: {
