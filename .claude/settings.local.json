@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Read(//usr/local/bin/**)",
+      "Read(//Users/hailey.tran/.nvm/versions/**)",
+      "Bash(/opt/homebrew/bin/npm install *)",
+      "Read(//opt/homebrew/Cellar/node/**)",
+      "Read(//opt/homebrew/Cellar/**)",
+      "Bash(/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js --version)",
+      "Bash(brew reinstall *)",
+      "Bash(/opt/homebrew/Cellar/node/25.9.0_3/bin/npm install *)",
+      "Bash(/opt/homebrew/Cellar/node/25.9.0_3/bin/npm run *)",
+      "Bash(open http://localhost:5173)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(osascript *)",
+      "Bash(/opt/homebrew/lib/node_modules/netlify-cli/bin/netlify.js deploy *)",
+      "Bash(/opt/homebrew/bin/netlify deploy *)",
+      "Bash(/opt/homebrew/bin/netlify login *)",
+      "Bash(/opt/homebrew/bin/netlify claim *)",
+      "Bash(/opt/homebrew/bin/netlify status *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
