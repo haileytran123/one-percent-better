@@ -1,36 +1,42 @@
 import { useNavigate } from 'react-router-dom'
-import { getStreak, getMomentumScore, getEntryByDate, getTodayDateString } from '../storage'
+import { getStreak, getMomentumScore, getEntryByDate, getTodayDateString, getThisWeekEntries, getAllEntries } from '../storage'
+import Luma from '../components/Luma'
+import { computeLumaState } from '../luma'
 
 const MESSAGES = [
-  { title: 'Logged.', sub: 'You showed up for yourself today.' },
-  { title: 'Recorded.', sub: 'Another data point in your story.' },
-  { title: 'Saved.', sub: 'Small reflections compound into clarity.' },
-  { title: 'Done.', sub: 'Consistency is your superpower.' },
+  { title: 'Logged.',    sub: 'Thank you for showing up. Luma is proud of you.' },
+  { title: 'Recorded.', sub: 'Another thread in the tapestry of your story.' },
+  { title: 'Saved.',    sub: 'Small reflections compound into clarity.' },
+  { title: 'Done.',     sub: 'Luma grows a little more with every entry.' },
 ]
 
 export default function Confirmation() {
-  const navigate = useNavigate()
-  const streak   = getStreak()
+  const navigate    = useNavigate()
+  const streak      = getStreak()
   const { score, trend } = getMomentumScore()
-  const entry    = getEntryByDate(getTodayDateString())
-  const msg      = MESSAGES[new Date().getDay() % MESSAGES.length]
+  const entry       = getEntryByDate(getTodayDateString())
+  const weekEntries = getThisWeekEntries()
+  const allEntries  = getAllEntries()
+  const luma        = computeLumaState(allEntries, weekEntries, streak)
+  const msg         = MESSAGES[new Date().getDay() % MESSAGES.length]
 
   return (
     <div className="flex flex-col items-center justify-between min-h-dvh px-5 py-12 bg-gradient-to-b from-sand-100 to-sand-50">
 
-      <div /> {/* spacer */}
+      <div />
 
       {/* Central content */}
-      <div className="flex flex-col items-center gap-5 text-center">
-        {/* Icon */}
-        <div className="relative flex items-center justify-center mb-2">
-          <div className="absolute w-28 h-28 rounded-full bg-sage-200 animate-pulse-ring" />
-          <div className="relative w-24 h-24 rounded-full bg-white shadow-warm flex items-center justify-center animate-checkmark">
-            <svg className="w-10 h-10 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-          </div>
-        </div>
+      <div className="flex flex-col items-center gap-6 text-center">
+
+        {/* Luma — tappable, opens growth journey */}
+        <button
+          onClick={() => navigate('/luma')}
+          className="flex flex-col items-center gap-1 animate-checkmark active:scale-95 transition-transform duration-150"
+          aria-label="View Luma's growth journey"
+        >
+          <Luma state={luma} size={120} />
+          <p className="text-stone-400 text-xs italic mt-1">{luma.message}</p>
+        </button>
 
         <div className="flex flex-col gap-1.5 animate-fade-up delay-75">
           <h1 className="font-display text-4xl font-semibold text-stone-900">{msg.title}</h1>
@@ -38,7 +44,7 @@ export default function Confirmation() {
         </div>
 
         {/* Stats */}
-        <div className="flex gap-3 mt-2 animate-fade-up delay-150">
+        <div className="flex gap-3 mt-1 animate-fade-up delay-150">
           {streak > 0 && (
             <div className="card px-4 py-3 flex items-center gap-2">
               <span className="animate-float">🔥</span>

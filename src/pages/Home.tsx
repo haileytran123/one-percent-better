@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import {
   getEntryByDate, getTodayDateString,
-  getStreak, getMomentumScore, getThisWeekEntries,
+  getStreak, getMomentumScore, getThisWeekEntries, getAllEntries,
 } from '../storage'
 import { ratingEmoji, ratingLabel, ratingBg } from '../components/RatingPicker'
 import WeekStrip from '../components/WeekStrip'
 import TagPill from '../components/TagPill'
+import Luma from '../components/Luma'
+import { computeLumaState } from '../luma'
 import { Entry } from '../types'
 
 const AFFIRMATIONS = [
@@ -18,15 +20,18 @@ const AFFIRMATIONS = [
 ]
 
 export default function Home() {
-  const today      = getTodayDateString()
-  const entry      = getEntryByDate(today)
-  const streak     = getStreak()
+  const today       = getTodayDateString()
+  const entry       = getEntryByDate(today)
+  const streak      = getStreak()
   const { score: momentum, trend } = getMomentumScore()
   const weekEntries = getThisWeekEntries()
-  const navigate   = useNavigate()
+  const allEntries  = getAllEntries()
+  const navigate    = useNavigate()
 
-  const hour     = new Date().getHours()
-  const greeting = hour < 5 ? 'Still up?' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 21 ? 'Good evening' : 'Good night'
+  const luma = computeLumaState(allEntries, weekEntries, streak)
+
+  const hour        = new Date().getHours()
+  const greeting    = hour < 5 ? 'Still up?' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 21 ? 'Good evening' : 'Good night'
   const affirmation = AFFIRMATIONS[new Date().getDay() % AFFIRMATIONS.length]
 
   const avgMood = weekEntries.length > 0
@@ -39,12 +44,27 @@ export default function Home() {
   return (
     <div className="px-5 pt-10 pb-4 flex flex-col gap-5">
 
-      {/* Greeting */}
-      <div className="flex flex-col gap-0.5 animate-fade-down">
-        <p className="text-stone-400 text-sm font-medium tracking-wide">{greeting}, Hailey</p>
-        <h1 className="font-display text-[28px] font-semibold text-stone-900 leading-tight">
-          {affirmation}
-        </h1>
+      {/* Greeting + Luma side by side */}
+      <div className="flex items-end justify-between animate-fade-down">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-stone-400 text-sm font-medium tracking-wide">{greeting}, Hailey</p>
+          <h1 className="font-display text-[27px] font-semibold text-stone-900 leading-tight max-w-[220px]">
+            {affirmation}
+          </h1>
+        </div>
+        <button
+          onClick={() => navigate('/luma')}
+          className="flex flex-col items-center gap-1 shrink-0 group active:scale-95 transition-transform duration-150"
+          aria-label="View Luma's growth journey"
+        >
+          <Luma state={luma} size={82} />
+          <p className="text-stone-400 text-[10px] font-medium tracking-wide group-hover:text-stone-600 transition-colors">Luma</p>
+        </button>
+      </div>
+
+      {/* Luma message — whisper line */}
+      <div className="animate-fade-up delay-75 -mt-1">
+        <p className="text-stone-400 text-xs italic leading-relaxed pl-1">{luma.message}</p>
       </div>
 
       {/* Week strip */}
@@ -91,17 +111,13 @@ function PendingCard({ onStart }: { onStart: () => void }) {
   const date = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   return (
     <div className="card overflow-hidden">
-      {/* Warm gradient banner */}
       <div className="h-1.5 w-full bg-gradient-to-r from-sand-300 via-sage-300 to-periwinkle-300" />
       <div className="px-5 py-5 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-stone-400 text-xs font-medium">{date}</p>
-          <p className="text-stone-900 font-semibold text-[17px] leading-snug">
-            How did today go?
-          </p>
+          <p className="text-stone-900 font-semibold text-[17px] leading-snug">How did today go?</p>
           <p className="text-stone-400 text-sm">Takes less than a minute.</p>
         </div>
-
         <button onClick={onStart} className="btn-primary relative overflow-hidden group">
           <span className="absolute inset-3 rounded-xl bg-white/10 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 ease-out" />
           <span className="relative">Begin today's reflection →</span>
@@ -122,21 +138,16 @@ function CompletedCard({ entry, onEdit }: { entry: Entry; onEdit: () => void }) 
             {ratingEmoji(entry.rating)} {ratingLabel(entry.rating)}
           </span>
         </div>
-
         <div className="flex flex-col gap-3">
           <QuoteRow label="Got 1% better" text={entry.betterBy} />
           <QuoteRow label="Grateful for"  text={entry.grateful} />
         </div>
-
         {entry.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {entry.tags.map((t) => <TagPill key={t} tag={t} />)}
           </div>
         )}
-
-        <button onClick={onEdit} className="btn-ghost">
-          Edit today's entry
-        </button>
+        <button onClick={onEdit} className="btn-ghost">Edit today's entry</button>
       </div>
     </div>
   )

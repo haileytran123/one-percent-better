@@ -1,6 +1,9 @@
-import { getThisWeekEntries, getThisWeekDates, buildWeekInsights, getStreak } from '../storage'
+import { useNavigate } from 'react-router-dom'
+import { getThisWeekEntries, getThisWeekDates, buildWeekInsights, getStreak, getAllEntries } from '../storage'
 import { ratingEmoji } from '../components/RatingPicker'
 import MoodChart from '../components/MoodChart'
+import Luma from '../components/Luma'
+import { computeLumaState } from '../luma'
 
 const DRIVER_STYLE: Record<string, string> = {
   Growth:     'bg-sage-100 text-sage-700 border-sage-200',
@@ -32,11 +35,14 @@ const STRESSOR_STYLE: Record<string, string> = {
 }
 
 export default function WeeklySummary() {
+  const navigate  = useNavigate()
   const entries   = getThisWeekEntries()
   const weekDates = getThisWeekDates()
   const insights  = buildWeekInsights(entries)
   const streak    = getStreak()
 
+  const allEntries    = getAllEntries()
+  const luma          = computeLumaState(allEntries, entries, streak)
   const completionPct = insights.elapsedDays > 0
     ? Math.round((insights.completedDays / insights.elapsedDays) * 100)
     : 0
@@ -44,10 +50,10 @@ export default function WeeklySummary() {
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center gap-4">
-        <span className="text-5xl animate-float">🌱</span>
-        <p className="font-display text-xl text-stone-700">Your insights are growing.</p>
+        <Luma state={computeLumaState(getAllEntries(), [], 0)} size={90} />
+        <p className="font-display text-xl text-stone-700">Take your time.</p>
         <p className="text-stone-400 text-sm leading-relaxed">
-          Complete your first check-in this week<br />to start seeing your patterns.
+          Luma is here whenever you're ready.<br />Your first reflection starts everything.
         </p>
       </div>
     )
@@ -72,8 +78,25 @@ export default function WeeklySummary() {
         </div>
       </div>
 
-      {/* 1. Summary card */}
+      {/* Luma weekly state — tappable, opens Luma page */}
       <div className="animate-fade-up delay-75">
+        <button
+          onClick={() => navigate('/luma')}
+          className="card w-full px-5 py-4 flex items-center gap-4 overflow-hidden active:scale-[0.985] transition-transform duration-150 text-left"
+        >
+          <div className="shrink-0"><Luma state={luma} size={72} /></div>
+          <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+            <p className="text-stone-700 text-sm font-medium capitalize">{luma.mood === 'tender' ? 'Taking it easy' : luma.mood === 'blooming' ? 'Blooming' : luma.mood === 'glowing' ? 'Glowing' : luma.mood === 'reflective' ? 'Reflective' : 'Growing steadily'}</p>
+            <p className="text-stone-400 text-xs italic leading-relaxed">{luma.message}</p>
+          </div>
+          <svg className="w-4 h-4 text-stone-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+
+      {/* 1. Summary card */}
+      <div className="animate-fade-up delay-150">
         <SummaryCard
           completedDays={insights.completedDays}
           avgRating={insights.avgRating}
