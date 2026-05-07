@@ -50,6 +50,7 @@ export default function CheckIn() {
     grateful:   existing?.grateful   ?? '',
     goalWorked: existing?.goalWorked ?? '',
     bothered:   existing?.bothered   ?? '',
+    freeWrite:  existing?.freeWrite  ?? '',
     rating:     existing?.rating     ?? 3,
   })
   const [step, setStep]           = useState(0)
@@ -57,9 +58,10 @@ export default function CheckIn() {
   const [animKey, setAnimKey]     = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const totalSteps   = FIELDS.length + 1
-  const isRatingStep = step === FIELDS.length
-  const field        = !isRatingStep ? FIELDS[step] : null
+  const totalSteps    = FIELDS.length + 2  // fields + rating + freeWrite
+  const isRatingStep  = step === FIELDS.length
+  const isFreeWrite   = step === FIELDS.length + 1
+  const field        = (!isRatingStep && !isFreeWrite) ? FIELDS[step] : null
   const progress     = ((step + 1) / totalSteps) * 100
 
   useEffect(() => {
@@ -68,6 +70,7 @@ export default function CheckIn() {
 
   function canAdvance() {
     if (isRatingStep) return true
+    if (isFreeWrite)  return true   // always optional
     return values[field!.key].trim().length > 0
   }
 
@@ -84,7 +87,9 @@ export default function CheckIn() {
     const now  = new Date().toISOString()
     const entry: Entry = {
       date: today, betterBy: values.betterBy, grateful: values.grateful,
-      goalWorked: values.goalWorked, bothered: values.bothered, rating: values.rating,
+      goalWorked: values.goalWorked, bothered: values.bothered,
+      freeWrite: values.freeWrite,
+      rating: values.rating,
       tags, stressorCategory, stressorRelated, happinessDrivers,
       createdAt: existing?.createdAt ?? now, updatedAt: now,
     }
@@ -108,15 +113,18 @@ export default function CheckIn() {
           </svg>
         </button>
         <div className="flex items-center gap-2">
-          {FIELDS.map((f, i) => (
+          {FIELDS.map((_, i) => (
             <div
               key={i}
               className={`h-1.5 rounded-full transition-all duration-500 ${
                 i < step ? 'w-4 bg-stone-900' : i === step ? 'w-6 bg-stone-900' : 'w-4 bg-stone-200'
-              } ${isRatingStep ? 'bg-stone-900' : ''}`}
+              }`}
             />
           ))}
+          {/* rating dot */}
           <div className={`h-1.5 rounded-full transition-all duration-500 ${isRatingStep ? 'w-6 bg-stone-900' : 'w-4 bg-stone-200'}`} />
+          {/* freeWrite dot */}
+          <div className={`h-1.5 rounded-full transition-all duration-500 ${isFreeWrite ? 'w-6 bg-stone-900' : 'w-4 bg-stone-200'}`} />
         </div>
         <span className="text-stone-400 text-sm font-medium w-9 text-right">{step + 1}/{totalSteps}</span>
       </div>
@@ -167,6 +175,28 @@ export default function CheckIn() {
             <RatingPicker value={values.rating} onChange={(v) => setValues((vals) => ({ ...vals, rating: v }))} />
           </>
         )}
+
+        {isFreeWrite && (
+          <>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-violet-300" />
+                <span className="text-stone-400 text-xs font-semibold uppercase tracking-widest">Free write</span>
+              </div>
+              <p className="font-display text-[26px] font-medium text-stone-900 leading-snug">
+                Anything else on your mind?
+              </p>
+              <p className="text-stone-400 text-sm">Optional. Write without structure.</p>
+            </div>
+            <textarea
+              rows={7}
+              value={values.freeWrite}
+              onChange={(e) => setValues((v) => ({ ...v, freeWrite: e.target.value }))}
+              placeholder="Write freely…"
+              className="w-full bg-white/60 border border-sand-200 focus:border-stone-400 focus:bg-white/90 focus:ring-2 focus:ring-stone-200/50 rounded-2xl px-4 py-4 text-stone-800 placeholder-stone-300 text-[15px] leading-relaxed transition-all duration-200 backdrop-blur-sm"
+            />
+          </>
+        )}
       </div>
 
       {/* CTA */}
@@ -176,7 +206,7 @@ export default function CheckIn() {
           disabled={!canAdvance()}
           className="btn-primary disabled:bg-stone-200 disabled:text-stone-400"
         >
-          {isRatingStep ? (existing ? 'Update reflection' : 'Save reflection') : 'Continue'}
+          {isFreeWrite ? (existing ? 'Update reflection' : 'Save reflection') : 'Continue'}
         </button>
       </div>
     </div>

@@ -18,6 +18,7 @@ export function getAllEntries(): Entry[] {
       grateful:           e.grateful ?? '',
       goalWorked:         e.goalWorked ?? '',
       bothered:           e.bothered ?? '',
+      freeWrite:          e.freeWrite ?? '',
       rating:             e.rating ?? 3,
       tags:               e.tags ?? [],
       stressorCategory:   e.stressorCategory ?? 'Other',

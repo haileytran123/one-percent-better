@@ -4,6 +4,7 @@ export interface Entry {
   grateful: string
   goalWorked: string
   bothered: string
+  freeWrite: string      // optional free-form journal — blank by default
   rating: number         // 1–5
   tags: string[]         // auto-generated from content
   stressorCategory: StressorCategory
